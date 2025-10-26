@@ -356,18 +356,40 @@ class MemStorage implements IStorage {
 }
 
 // Will be set during app startup
-export const storage = {} as IStorage;
+let storageImpl: IStorage = new MemStorage();
 
-export function setStorage(impl: IStorage) {
-  Object.assign(storage, impl);
-}
+export const storage: IStorage = {
+  getUser: (id: string) => storageImpl.getUser(id),
+  getUserByUsername: (username: string) => storageImpl.getUserByUsername(username),
+  getUserByEmail: (email: string) => storageImpl.getUserByEmail(email),
+  createUser: (user: InsertUser) => storageImpl.createUser(user),
+  
+  getDriver: (id: string) => storageImpl.getDriver(id),
+  getAllDrivers: () => storageImpl.getAllDrivers(),
+  createDriver: (driver: InsertDriver) => storageImpl.createDriver(driver),
+  updateDriver: (id: string, updates: Partial<Driver>) => storageImpl.updateDriver(id, updates),
+  
+  getVehicle: (id: string) => storageImpl.getVehicle(id),
+  getAllVehicles: () => storageImpl.getAllVehicles(),
+  createVehicle: (vehicle: InsertVehicle) => storageImpl.createVehicle(vehicle),
+  updateVehicle: (id: string, updates: Partial<Vehicle>) => storageImpl.updateVehicle(id, updates),
+  
+  getOrder: (id: string) => storageImpl.getOrder(id),
+  getOrderByNumber: (orderNumber: string) => storageImpl.getOrderByNumber(orderNumber),
+  getAllOrders: () => storageImpl.getAllOrders(),
+  getOrdersByDriver: (driverId: string) => storageImpl.getOrdersByDriver(driverId),
+  getOrdersByCustomer: (customerId: string) => storageImpl.getOrdersByCustomer(customerId),
+  createOrder: (order: InsertOrder) => storageImpl.createOrder(order),
+  updateOrder: (id: string, updates: Partial<Order>) => storageImpl.updateOrder(id, updates),
+  
+  createNotification: (notification: InsertNotification) => storageImpl.createNotification(notification),
+  getUserNotifications: (userId: string) => storageImpl.getUserNotifications(userId),
+};
 
 export function useMongoStorage() {
-  activeStorage = new MongoStorage();
-  setStorage(activeStorage);
+  storageImpl = new MongoStorage();
 }
 
 export function useMemStorage() {
-  activeStorage = new MemStorage();
-  setStorage(activeStorage);
+  storageImpl = new MemStorage();
 }
