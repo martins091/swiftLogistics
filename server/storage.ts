@@ -5,29 +5,26 @@ import type {
   Order, InsertOrder,
   Notification, InsertNotification 
 } from "@shared/schema";
-import { getDb } from "./db";
-import { v4 as uuidv4 } from "uuid";
+import { users, drivers, vehicles, orders, notifications } from "@shared/schema";
+import { db } from "./db";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
-  // Users
   getUser(id: string): Promise<User | null>;
   getUserByUsername(username: string): Promise<User | null>;
   getUserByEmail(email: string): Promise<User | null>;
   createUser(user: InsertUser): Promise<User>;
 
-  // Drivers
   getDriver(id: string): Promise<Driver | null>;
   getAllDrivers(): Promise<Driver[]>;
   createDriver(driver: InsertDriver): Promise<Driver>;
   updateDriver(id: string, updates: Partial<Driver>): Promise<Driver | null>;
 
-  // Vehicles
   getVehicle(id: string): Promise<Vehicle | null>;
   getAllVehicles(): Promise<Vehicle[]>;
   createVehicle(vehicle: InsertVehicle): Promise<Vehicle>;
   updateVehicle(id: string, updates: Partial<Vehicle>): Promise<Vehicle | null>;
 
-  // Orders
   getOrder(id: string): Promise<Order | null>;
   getOrderByNumber(orderNumber: string): Promise<Order | null>;
   getAllOrders(): Promise<Order[]>;
@@ -36,360 +33,141 @@ export interface IStorage {
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrder(id: string, updates: Partial<Order>): Promise<Order | null>;
 
-  // Notifications
   createNotification(notification: InsertNotification): Promise<Notification>;
   getUserNotifications(userId: string): Promise<Notification[]>;
 }
 
-export class MongoStorage implements IStorage {
-  // Users
+export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | null> {
-    const db = getDb();
-    return await db.collection<User>("users").findOne({ id });
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || null;
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
-    const db = getDb();
-    return await db.collection<User>("users").findOne({ username });
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || null;
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const db = getDb();
-    return await db.collection<User>("users").findOne({ email });
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || null;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const db = getDb();
-    const user: User = {
-      ...insertUser,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-    };
-    await db.collection("users").insertOne(user);
-    return user;
-  }
-
-  // Drivers
-  async getDriver(id: string): Promise<Driver | null> {
-    const db = getDb();
-    return await db.collection<Driver>("drivers").findOne({ id });
-  }
-
-  async getAllDrivers(): Promise<Driver[]> {
-    const db = getDb();
-    return await db.collection<Driver>("drivers").find().toArray();
-  }
-
-  async createDriver(insertDriver: InsertDriver): Promise<Driver> {
-    const db = getDb();
-    const driver: Driver = {
-      ...insertDriver,
-      id: uuidv4(),
-      rating: "5.00",
-      completedDeliveries: "0",
-      createdAt: new Date().toISOString(),
-    };
-    await db.collection("drivers").insertOne(driver);
-    return driver;
-  }
-
-  async updateDriver(id: string, updates: Partial<Driver>): Promise<Driver | null> {
-    const db = getDb();
-    const result = await db.collection<Driver>("drivers").findOneAndUpdate(
-      { id },
-      { $set: updates },
-      { returnDocument: "after" }
-    );
-    return result || null;
-  }
-
-  // Vehicles
-  async getVehicle(id: string): Promise<Vehicle | null> {
-    const db = getDb();
-    return await db.collection<Vehicle>("vehicles").findOne({ id });
-  }
-
-  async getAllVehicles(): Promise<Vehicle[]> {
-    const db = getDb();
-    return await db.collection<Vehicle>("vehicles").find().toArray();
-  }
-
-  async createVehicle(insertVehicle: InsertVehicle): Promise<Vehicle> {
-    const db = getDb();
-    const vehicle: Vehicle = {
-      ...insertVehicle,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-    };
-    await db.collection("vehicles").insertOne(vehicle);
-    return vehicle;
-  }
-
-  async updateVehicle(id: string, updates: Partial<Vehicle>): Promise<Vehicle | null> {
-    const db = getDb();
-    const result = await db.collection<Vehicle>("vehicles").findOneAndUpdate(
-      { id },
-      { $set: updates },
-      { returnDocument: "after" }
-    );
-    return result || null;
-  }
-
-  // Orders
-  async getOrder(id: string): Promise<Order | null> {
-    const db = getDb();
-    return await db.collection<Order>("orders").findOne({ id });
-  }
-
-  async getOrderByNumber(orderNumber: string): Promise<Order | null> {
-    const db = getDb();
-    return await db.collection<Order>("orders").findOne({ orderNumber });
-  }
-
-  async getAllOrders(): Promise<Order[]> {
-    const db = getDb();
-    return await db.collection<Order>("orders").find().sort({ createdAt: -1 }).toArray();
-  }
-
-  async getOrdersByDriver(driverId: string): Promise<Order[]> {
-    const db = getDb();
-    return await db.collection<Order>("orders").find({ driverId }).sort({ createdAt: -1 }).toArray();
-  }
-
-  async getOrdersByCustomer(customerId: string): Promise<Order[]> {
-    const db = getDb();
-    return await db.collection<Order>("orders").find({ customerId }).sort({ createdAt: -1 }).toArray();
-  }
-
-  async createOrder(insertOrder: InsertOrder): Promise<Order> {
-    const db = getDb();
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-    const order: Order = {
-      ...insertOrder,
-      id: uuidv4(),
-      orderNumber,
-      createdAt: new Date().toISOString(),
-    };
-    await db.collection("orders").insertOne(order);
-    return order;
-  }
-
-  async updateOrder(id: string, updates: Partial<Order>): Promise<Order | null> {
-    const db = getDb();
-    const result = await db.collection<Order>("orders").findOneAndUpdate(
-      { id },
-      { $set: updates },
-      { returnDocument: "after" }
-    );
-    return result || null;
-  }
-
-  // Notifications
-  async createNotification(insertNotification: InsertNotification): Promise<Notification> {
-    const db = getDb();
-    const notification: Notification = {
-      ...insertNotification,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-    };
-    await db.collection("notifications").insertOne(notification);
-    return notification;
-  }
-
-  async getUserNotifications(userId: string): Promise<Notification[]> {
-    const db = getDb();
-    return await db.collection<Notification>("notifications")
-      .find({ userId })
-      .sort({ createdAt: -1 })
-      .toArray();
-  }
-}
-
-// Determine which storage to use
-let activeStorage: IStorage;
-
-// In-memory fallback storage (same implementation as before)
-class MemStorage implements IStorage {
-  private users: Map<string, User> = new Map();
-  private drivers: Map<string, Driver> = new Map();
-  private vehicles: Map<string, Vehicle> = new Map();
-  private orders: Map<string, Order> = new Map();
-  private notifications: Map<string, Notification> = new Map();
-
-  async getUser(id: string): Promise<User | null> {
-    return this.users.get(id) || null;
-  }
-
-  async getUserByUsername(username: string): Promise<User | null> {
-    return Array.from(this.users.values()).find(u => u.username === username) || null;
-  }
-
-  async getUserByEmail(email: string): Promise<User | null> {
-    return Array.from(this.users.values()).find(u => u.email === email) || null;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const user: User = {
-      ...insertUser,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-    };
-    this.users.set(user.id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
 
   async getDriver(id: string): Promise<Driver | null> {
-    return this.drivers.get(id) || null;
+    const [driver] = await db.select().from(drivers).where(eq(drivers.id, id));
+    return driver || null;
   }
 
   async getAllDrivers(): Promise<Driver[]> {
-    return Array.from(this.drivers.values());
+    return await db.select().from(drivers);
   }
 
   async createDriver(insertDriver: InsertDriver): Promise<Driver> {
-    const driver: Driver = {
-      ...insertDriver,
-      id: uuidv4(),
-      rating: "5.00",
-      completedDeliveries: "0",
-      createdAt: new Date().toISOString(),
-    };
-    this.drivers.set(driver.id, driver);
+    const [driver] = await db
+      .insert(drivers)
+      .values(insertDriver)
+      .returning();
     return driver;
   }
 
   async updateDriver(id: string, updates: Partial<Driver>): Promise<Driver | null> {
-    const driver = this.drivers.get(id);
-    if (!driver) return null;
-    const updated = { ...driver, ...updates };
-    this.drivers.set(id, updated);
-    return updated;
+    const [driver] = await db
+      .update(drivers)
+      .set(updates)
+      .where(eq(drivers.id, id))
+      .returning();
+    return driver || null;
   }
 
   async getVehicle(id: string): Promise<Vehicle | null> {
-    return this.vehicles.get(id) || null;
+    const [vehicle] = await db.select().from(vehicles).where(eq(vehicles.id, id));
+    return vehicle || null;
   }
 
   async getAllVehicles(): Promise<Vehicle[]> {
-    return Array.from(this.vehicles.values());
+    return await db.select().from(vehicles);
   }
 
   async createVehicle(insertVehicle: InsertVehicle): Promise<Vehicle> {
-    const vehicle: Vehicle = {
-      ...insertVehicle,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-    };
-    this.vehicles.set(vehicle.id, vehicle);
+    const [vehicle] = await db
+      .insert(vehicles)
+      .values(insertVehicle)
+      .returning();
     return vehicle;
   }
 
   async updateVehicle(id: string, updates: Partial<Vehicle>): Promise<Vehicle | null> {
-    const vehicle = this.vehicles.get(id);
-    if (!vehicle) return null;
-    const updated = { ...vehicle, ...updates };
-    this.vehicles.set(id, updated);
-    return updated;
+    const [vehicle] = await db
+      .update(vehicles)
+      .set(updates)
+      .where(eq(vehicles.id, id))
+      .returning();
+    return vehicle || null;
   }
 
   async getOrder(id: string): Promise<Order | null> {
-    return this.orders.get(id) || null;
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
+    return order || null;
   }
 
   async getOrderByNumber(orderNumber: string): Promise<Order | null> {
-    return Array.from(this.orders.values()).find(o => o.orderNumber === orderNumber) || null;
+    const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
+    return order || null;
   }
 
   async getAllOrders(): Promise<Order[]> {
-    return Array.from(this.orders.values()).sort((a, b) => 
-      new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-    );
+    return await db.select().from(orders).orderBy(desc(orders.createdAt));
   }
 
   async getOrdersByDriver(driverId: string): Promise<Order[]> {
-    return Array.from(this.orders.values())
-      .filter(o => o.driverId === driverId)
-      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return await db.select().from(orders).where(eq(orders.driverId, driverId)).orderBy(desc(orders.createdAt));
   }
 
   async getOrdersByCustomer(customerId: string): Promise<Order[]> {
-    return Array.from(this.orders.values())
-      .filter(o => o.customerId === customerId)
-      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return await db.select().from(orders).where(eq(orders.customerId, customerId)).orderBy(desc(orders.createdAt));
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
     const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-    const order: Order = {
-      ...insertOrder,
-      id: uuidv4(),
-      orderNumber,
-      createdAt: new Date().toISOString(),
-    };
-    this.orders.set(order.id, order);
+    const [order] = await db
+      .insert(orders)
+      .values({ ...insertOrder, orderNumber })
+      .returning();
     return order;
   }
 
   async updateOrder(id: string, updates: Partial<Order>): Promise<Order | null> {
-    const order = this.orders.get(id);
-    if (!order) return null;
-    const updated = { ...order, ...updates };
-    this.orders.set(id, updated);
-    return updated;
+    const [order] = await db
+      .update(orders)
+      .set(updates)
+      .where(eq(orders.id, id))
+      .returning();
+    return order || null;
   }
 
   async createNotification(insertNotification: InsertNotification): Promise<Notification> {
-    const notification: Notification = {
-      ...insertNotification,
-      id: uuidv4(),
-      createdAt: new Date().toISOString(),
-    };
-    this.notifications.set(notification.id, notification);
+    const [notification] = await db
+      .insert(notifications)
+      .values(insertNotification)
+      .returning();
     return notification;
   }
 
   async getUserNotifications(userId: string): Promise<Notification[]> {
-    return Array.from(this.notifications.values())
-      .filter(n => n.userId === userId)
-      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    return await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.userId, userId))
+      .orderBy(desc(notifications.createdAt));
   }
 }
 
-// Will be set during app startup
-let storageImpl: IStorage = new MemStorage();
-
-export const storage: IStorage = {
-  getUser: (id: string) => storageImpl.getUser(id),
-  getUserByUsername: (username: string) => storageImpl.getUserByUsername(username),
-  getUserByEmail: (email: string) => storageImpl.getUserByEmail(email),
-  createUser: (user: InsertUser) => storageImpl.createUser(user),
-  
-  getDriver: (id: string) => storageImpl.getDriver(id),
-  getAllDrivers: () => storageImpl.getAllDrivers(),
-  createDriver: (driver: InsertDriver) => storageImpl.createDriver(driver),
-  updateDriver: (id: string, updates: Partial<Driver>) => storageImpl.updateDriver(id, updates),
-  
-  getVehicle: (id: string) => storageImpl.getVehicle(id),
-  getAllVehicles: () => storageImpl.getAllVehicles(),
-  createVehicle: (vehicle: InsertVehicle) => storageImpl.createVehicle(vehicle),
-  updateVehicle: (id: string, updates: Partial<Vehicle>) => storageImpl.updateVehicle(id, updates),
-  
-  getOrder: (id: string) => storageImpl.getOrder(id),
-  getOrderByNumber: (orderNumber: string) => storageImpl.getOrderByNumber(orderNumber),
-  getAllOrders: () => storageImpl.getAllOrders(),
-  getOrdersByDriver: (driverId: string) => storageImpl.getOrdersByDriver(driverId),
-  getOrdersByCustomer: (customerId: string) => storageImpl.getOrdersByCustomer(customerId),
-  createOrder: (order: InsertOrder) => storageImpl.createOrder(order),
-  updateOrder: (id: string, updates: Partial<Order>) => storageImpl.updateOrder(id, updates),
-  
-  createNotification: (notification: InsertNotification) => storageImpl.createNotification(notification),
-  getUserNotifications: (userId: string) => storageImpl.getUserNotifications(userId),
-};
-
-export function useMongoStorage() {
-  storageImpl = new MongoStorage();
-}
-
-export function useMemStorage() {
-  storageImpl = new MemStorage();
-}
+export const storage: IStorage = new DatabaseStorage();

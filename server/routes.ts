@@ -1,7 +1,6 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { connectToDatabase } from "./db";
 import bcrypt from "bcryptjs";
 import { authenticateToken, generateToken, type AuthRequest } from "./auth";
 import { notifyOrderStatusChange } from "./notifications";
@@ -14,24 +13,7 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Try to connect to MongoDB, fallback to in-memory storage if it fails
-  try {
-    await connectToDatabase();
-    const { useMongoStorage } = await import("./storage");
-    useMongoStorage();
-    console.log("✅ Using MongoDB storage");
-  } catch (error: any) {
-    console.warn("⚠️  MongoDB connection failed, using in-memory storage");
-    console.warn("Error details:", error.message);
-    console.warn("\n📋 To fix MongoDB connection:");
-    console.warn("1. Check MongoDB Atlas Network Access - whitelist your IP or use 0.0.0.0/0");
-    console.warn("2. Verify connection string in MONGODB_URI secret");
-    console.warn("3. Ensure database user has proper permissions\n");
-    
-    const { useMemStorage } = await import("./storage");
-    useMemStorage();
-    console.log("✅ Using in-memory storage (data will not persist)");
-  }
+  console.log("✅ Using PostgreSQL database storage");
 
   // Auth Routes
   app.post("/api/auth/register", async (req, res) => {
