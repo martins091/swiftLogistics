@@ -47,19 +47,21 @@ export function GoogleMap({
       markersRef.current.forEach(marker => marker.setMap(null));
       markersRef.current = [];
 
-      markers.forEach(({ position, title, icon }) => {
-        const marker = new google.maps.Marker({
-          position,
-          map: mapInstanceRef.current!,
-          title,
-          icon: icon || undefined,
-        });
-        markersRef.current.push(marker);
-      });
-
       if (markers.length > 0) {
         const bounds = new google.maps.LatLngBounds();
-        markers.forEach(marker => bounds.extend(marker.position));
+        
+        markers.forEach(({ position, title, icon }) => {
+          const latLng = new google.maps.LatLng(position.lat, position.lng);
+          const marker = new google.maps.Marker({
+            position: latLng,
+            map: mapInstanceRef.current!,
+            title,
+            icon: icon || undefined,
+          });
+          markersRef.current.push(marker);
+          bounds.extend(latLng);
+        });
+
         mapInstanceRef.current!.fitBounds(bounds);
       } else {
         mapInstanceRef.current!.setCenter(center);
@@ -70,14 +72,19 @@ export function GoogleMap({
     if (window.google) {
       initMap();
     } else {
-      const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'DEMO_KEY';
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
-      script.async = true;
-      script.defer = true;
-      script.onload = initMap;
-      script.onerror = () => console.error("Failed to load Google Maps");
-      document.head.appendChild(script);
+      const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+      if (existingScript) {
+        existingScript.addEventListener('load', initMap);
+      } else {
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'DEMO_KEY';
+        const script = document.createElement("script");
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
+        script.async = true;
+        script.defer = true;
+        script.onload = initMap;
+        script.onerror = () => console.error("Failed to load Google Maps");
+        document.head.appendChild(script);
+      }
     }
   }, [center, markers, zoom]);
 
