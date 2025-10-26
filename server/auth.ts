@@ -6,6 +6,10 @@ export interface AuthRequest extends Request {
   user?: User;
 }
 
+const getJwtSecret = (): string => {
+  return process.env.JWT_SECRET || "development-secret-key-change-in-production";
+};
+
 export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -14,10 +18,7 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
     return res.status(401).json({ error: "Access token required" });
   }
 
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    return res.status(500).json({ error: "Server configuration error" });
-  }
+  const secret = getJwtSecret();
 
   jwt.verify(token, secret, (err, decoded) => {
     if (err) {
@@ -29,9 +30,6 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
 }
 
 export function generateToken(user: User): string {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) {
-    throw new Error("JWT_SECRET not configured");
-  }
+  const secret = getJwtSecret();
   return jwt.sign(user, secret, { expiresIn: "7d" });
 }
