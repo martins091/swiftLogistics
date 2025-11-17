@@ -1,12 +1,23 @@
-import type { 
-  User, InsertUser, 
-  Driver, InsertDriver,
-  Vehicle, InsertVehicle,
-  Order, InsertOrder,
-  Notification, InsertNotification 
+import type {
+  User,
+  InsertUser,
+  Driver,
+  InsertDriver,
+  Vehicle,
+  InsertVehicle,
+  Order,
+  InsertOrder,
+  Notification,
+  InsertNotification,
 } from "@shared/schema";
-import { users, drivers, vehicles, orders, notifications } from "@shared/schema";
-import { db } from "./db";
+import {
+  users,
+  drivers,
+  vehicles,
+  orders,
+  notifications,
+} from "@shared/schema";
+// import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
@@ -44,7 +55,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, username));
     return user || null;
   }
 
@@ -54,10 +68,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
@@ -71,14 +82,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createDriver(insertDriver: InsertDriver): Promise<Driver> {
-    const [driver] = await db
-      .insert(drivers)
-      .values(insertDriver)
-      .returning();
+    const [driver] = await db.insert(drivers).values(insertDriver).returning();
     return driver;
   }
 
-  async updateDriver(id: string, updates: Partial<Driver>): Promise<Driver | null> {
+  async updateDriver(
+    id: string,
+    updates: Partial<Driver>
+  ): Promise<Driver | null> {
     const [driver] = await db
       .update(drivers)
       .set(updates)
@@ -88,7 +99,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getVehicle(id: string): Promise<Vehicle | null> {
-    const [vehicle] = await db.select().from(vehicles).where(eq(vehicles.id, id));
+    const [vehicle] = await db
+      .select()
+      .from(vehicles)
+      .where(eq(vehicles.id, id));
     return vehicle || null;
   }
 
@@ -104,7 +118,10 @@ export class DatabaseStorage implements IStorage {
     return vehicle;
   }
 
-  async updateVehicle(id: string, updates: Partial<Vehicle>): Promise<Vehicle | null> {
+  async updateVehicle(
+    id: string,
+    updates: Partial<Vehicle>
+  ): Promise<Vehicle | null> {
     const [vehicle] = await db
       .update(vehicles)
       .set(updates)
@@ -119,7 +136,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrderByNumber(orderNumber: string): Promise<Order | null> {
-    const [order] = await db.select().from(orders).where(eq(orders.orderNumber, orderNumber));
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.orderNumber, orderNumber));
     return order || null;
   }
 
@@ -128,15 +148,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getOrdersByDriver(driverId: string): Promise<Order[]> {
-    return await db.select().from(orders).where(eq(orders.driverId, driverId)).orderBy(desc(orders.createdAt));
+    return await db
+      .select()
+      .from(orders)
+      .where(eq(orders.driverId, driverId))
+      .orderBy(desc(orders.createdAt));
   }
 
   async getOrdersByCustomer(customerId: string): Promise<Order[]> {
-    return await db.select().from(orders).where(eq(orders.customerId, customerId)).orderBy(desc(orders.createdAt));
+    return await db
+      .select()
+      .from(orders)
+      .where(eq(orders.customerId, customerId))
+      .orderBy(desc(orders.createdAt));
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
-    const orderNumber = `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    const orderNumber = `ORD-${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2, 7)
+      .toUpperCase()}`;
     const [order] = await db
       .insert(orders)
       .values({ ...insertOrder, orderNumber })
@@ -144,7 +175,10 @@ export class DatabaseStorage implements IStorage {
     return order;
   }
 
-  async updateOrder(id: string, updates: Partial<Order>): Promise<Order | null> {
+  async updateOrder(
+    id: string,
+    updates: Partial<Order>
+  ): Promise<Order | null> {
     const [order] = await db
       .update(orders)
       .set(updates)
@@ -153,7 +187,9 @@ export class DatabaseStorage implements IStorage {
     return order || null;
   }
 
-  async createNotification(insertNotification: InsertNotification): Promise<Notification> {
+  async createNotification(
+    insertNotification: InsertNotification
+  ): Promise<Notification> {
     const [notification] = await db
       .insert(notifications)
       .values(insertNotification)
