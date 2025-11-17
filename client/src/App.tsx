@@ -9,6 +9,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 
+import Landing from "@/pages/landing";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
+import Services from "@/pages/services";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import Dashboard from "@/pages/dashboard";
@@ -74,9 +78,17 @@ function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
 function Router() {
   return (
     <Switch>
+      {/* Public Pages */}
+      <Route path="/" component={Landing} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/services" component={Services} />
+      
+      {/* Auth Pages */}
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
       
+      {/* Protected Admin Routes */}
       <Route path="/dashboard">
         <AuthenticatedLayout>
           <ProtectedRoute component={Dashboard} allowedRoles={["admin"]} />
@@ -107,6 +119,7 @@ function Router() {
         </AuthenticatedLayout>
       </Route>
       
+      {/* Protected Driver Routes */}
       <Route path="/driver-dashboard">
         <AuthenticatedLayout>
           <ProtectedRoute component={DriverDashboard} allowedRoles={["driver"]} />
@@ -119,16 +132,14 @@ function Router() {
         </AuthenticatedLayout>
       </Route>
       
+      {/* Protected Customer Routes */}
       <Route path="/track">
         <AuthenticatedLayout>
           <ProtectedRoute component={Track} />
         </AuthenticatedLayout>
       </Route>
       
-      <Route path="/">
-        <Redirect to="/login" />
-      </Route>
-      
+      {/* 404 */}
       <Route component={NotFound} />
     </Switch>
   );
