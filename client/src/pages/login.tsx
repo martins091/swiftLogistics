@@ -12,12 +12,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Truck, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
+import logoUrl from "@assets/prime-globe-freight-logo.png";
 
 export default function Login() {
   const { login } = useAuth();
@@ -59,15 +60,9 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
-              <Truck className="h-7 w-7 text-primary-foreground" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">LogisticsPro</h1>
-              <p className="text-sm text-muted-foreground">Delivery Management</p>
-            </div>
-          </div>
+          <Link href="/">
+            <img src={logoUrl} alt="Prime Globe Freight" className="h-16 w-auto" />
+          </Link>
         </div>
 
         <Card>

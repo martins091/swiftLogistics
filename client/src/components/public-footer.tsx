@@ -1,6 +1,7 @@
 import { Link } from "wouter";
-import { Package, Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import logoUrl from "@assets/prime-globe-freight-logo.png";
 
 export function PublicFooter() {
   const currentYear = new Date().getFullYear();
@@ -12,13 +13,7 @@ export function PublicFooter() {
           {/* Company Info */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary">
-                <Package className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-base leading-none">Prime Globe</span>
-                <span className="text-xs text-muted-foreground leading-none">Freight</span>
-              </div>
+              <img src={logoUrl} alt="Prime Globe Freight" className="h-10 w-auto" />
             </div>
             <p className="text-sm text-muted-foreground">
               Redefining global logistics with innovation, reliability, and customer-focused excellence.
