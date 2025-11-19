@@ -10,15 +10,7 @@ import type {
   Notification,
   InsertNotification,
 } from "@shared/schema";
-import {
-  users,
-  drivers,
-  vehicles,
-  orders,
-  notifications,
-} from "@shared/schema";
-// import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { UserModel, DriverModel, VehicleModel, OrderModel, NotificationModel } from "./models";
 
 export interface IStorage {
   getUser(id: string): Promise<User | null>;
@@ -49,118 +41,122 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private toPlainObject(doc: any): any {
+    if (!doc) return null;
+    const obj = doc.toObject ? doc.toObject() : doc;
+    const { _id, __v, ...rest } = obj;
+    if (rest.createdAt && rest.createdAt instanceof Date) {
+      rest.createdAt = rest.createdAt.toISOString();
+    }
+    if (rest.lastMaintenance && rest.lastMaintenance instanceof Date) {
+      rest.lastMaintenance = rest.lastMaintenance.toISOString();
+    }
+    if (rest.estimatedDeliveryTime && rest.estimatedDeliveryTime instanceof Date) {
+      rest.estimatedDeliveryTime = rest.estimatedDeliveryTime.toISOString();
+    }
+    if (rest.actualDeliveryTime && rest.actualDeliveryTime instanceof Date) {
+      rest.actualDeliveryTime = rest.actualDeliveryTime.toISOString();
+    }
+    return rest;
+  }
+
   async getUser(id: string): Promise<User | null> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user || null;
+    const user = await UserModel.findOne({ id });
+    return this.toPlainObject(user);
   }
 
   async getUserByUsername(username: string): Promise<User | null> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, username));
-    return user || null;
+    const user = await UserModel.findOne({ username });
+    return this.toPlainObject(user);
   }
 
   async getUserByEmail(email: string): Promise<User | null> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-    return user || null;
+    const user = await UserModel.findOne({ email });
+    return this.toPlainObject(user);
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
+    const user = await UserModel.create(insertUser);
+    return this.toPlainObject(user);
   }
 
   async getDriver(id: string): Promise<Driver | null> {
-    const [driver] = await db.select().from(drivers).where(eq(drivers.id, id));
-    return driver || null;
+    const driver = await DriverModel.findOne({ id });
+    return this.toPlainObject(driver);
   }
 
   async getAllDrivers(): Promise<Driver[]> {
-    return await db.select().from(drivers);
+    const drivers = await DriverModel.find();
+    return drivers.map(d => this.toPlainObject(d));
   }
 
   async createDriver(insertDriver: InsertDriver): Promise<Driver> {
-    const [driver] = await db.insert(drivers).values(insertDriver).returning();
-    return driver;
+    const driver = await DriverModel.create(insertDriver);
+    return this.toPlainObject(driver);
   }
 
   async updateDriver(
     id: string,
     updates: Partial<Driver>
   ): Promise<Driver | null> {
-    const [driver] = await db
-      .update(drivers)
-      .set(updates)
-      .where(eq(drivers.id, id))
-      .returning();
-    return driver || null;
+    const driver = await DriverModel.findOneAndUpdate(
+      { id },
+      updates,
+      { new: true }
+    );
+    return this.toPlainObject(driver);
   }
 
   async getVehicle(id: string): Promise<Vehicle | null> {
-    const [vehicle] = await db
-      .select()
-      .from(vehicles)
-      .where(eq(vehicles.id, id));
-    return vehicle || null;
+    const vehicle = await VehicleModel.findOne({ id });
+    return this.toPlainObject(vehicle);
   }
 
   async getAllVehicles(): Promise<Vehicle[]> {
-    return await db.select().from(vehicles);
+    const vehicles = await VehicleModel.find();
+    return vehicles.map(v => this.toPlainObject(v));
   }
 
   async createVehicle(insertVehicle: InsertVehicle): Promise<Vehicle> {
-    const [vehicle] = await db
-      .insert(vehicles)
-      .values(insertVehicle)
-      .returning();
-    return vehicle;
+    const vehicle = await VehicleModel.create(insertVehicle);
+    return this.toPlainObject(vehicle);
   }
 
   async updateVehicle(
     id: string,
     updates: Partial<Vehicle>
   ): Promise<Vehicle | null> {
-    const [vehicle] = await db
-      .update(vehicles)
-      .set(updates)
-      .where(eq(vehicles.id, id))
-      .returning();
-    return vehicle || null;
+    const vehicle = await VehicleModel.findOneAndUpdate(
+      { id },
+      updates,
+      { new: true }
+    );
+    return this.toPlainObject(vehicle);
   }
 
   async getOrder(id: string): Promise<Order | null> {
-    const [order] = await db.select().from(orders).where(eq(orders.id, id));
-    return order || null;
+    const order = await OrderModel.findOne({ id });
+    return this.toPlainObject(order);
   }
 
   async getOrderByNumber(orderNumber: string): Promise<Order | null> {
-    const [order] = await db
-      .select()
-      .from(orders)
-      .where(eq(orders.orderNumber, orderNumber));
-    return order || null;
+    const order = await OrderModel.findOne({ orderNumber });
+    return this.toPlainObject(order);
   }
 
   async getAllOrders(): Promise<Order[]> {
-    return await db.select().from(orders).orderBy(desc(orders.createdAt));
+    const orders = await OrderModel.find().sort({ createdAt: -1 });
+    return orders.map(o => this.toPlainObject(o));
   }
 
   async getOrdersByDriver(driverId: string): Promise<Order[]> {
-    return await db
-      .select()
-      .from(orders)
-      .where(eq(orders.driverId, driverId))
-      .orderBy(desc(orders.createdAt));
+    const orders = await OrderModel.find({ driverId }).sort({ createdAt: -1 });
+    return orders.map(o => this.toPlainObject(o));
   }
 
   async getOrdersByCustomer(customerId: string): Promise<Order[]> {
-    return await db
-      .select()
-      .from(orders)
-      .where(eq(orders.customerId, customerId))
-      .orderBy(desc(orders.createdAt));
+    const orders = await OrderModel.find({ customerId }).sort({ createdAt: -1 });
+    return orders.map(o => this.toPlainObject(o));
   }
 
   async createOrder(insertOrder: InsertOrder): Promise<Order> {
@@ -168,41 +164,32 @@ export class DatabaseStorage implements IStorage {
       .toString(36)
       .substring(2, 7)
       .toUpperCase()}`;
-    const [order] = await db
-      .insert(orders)
-      .values({ ...insertOrder, orderNumber })
-      .returning();
-    return order;
+    const order = await OrderModel.create({ ...insertOrder, orderNumber });
+    return this.toPlainObject(order);
   }
 
   async updateOrder(
     id: string,
     updates: Partial<Order>
   ): Promise<Order | null> {
-    const [order] = await db
-      .update(orders)
-      .set(updates)
-      .where(eq(orders.id, id))
-      .returning();
-    return order || null;
+    const order = await OrderModel.findOneAndUpdate(
+      { id },
+      updates,
+      { new: true }
+    );
+    return this.toPlainObject(order);
   }
 
   async createNotification(
     insertNotification: InsertNotification
   ): Promise<Notification> {
-    const [notification] = await db
-      .insert(notifications)
-      .values(insertNotification)
-      .returning();
-    return notification;
+    const notification = await NotificationModel.create(insertNotification);
+    return this.toPlainObject(notification);
   }
 
   async getUserNotifications(userId: string): Promise<Notification[]> {
-    return await db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.userId, userId))
-      .orderBy(desc(notifications.createdAt));
+    const notifications = await NotificationModel.find({ userId }).sort({ createdAt: -1 });
+    return notifications.map(n => this.toPlainObject(n));
   }
 }
 

@@ -1,9 +1,10 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Package, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import logoImage from "@assets/logologistic_1763562484250.jpg";
 
 export function PublicHeader() {
   const [location] = useLocation();
@@ -29,13 +30,7 @@ export function PublicHeader() {
           {/* Logo */}
           <Link href="/" data-testid="link-home">
             <div className="flex items-center gap-2 hover-elevate active-elevate-2 rounded-md px-3 py-2 -ml-3">
-              <div className="flex items-center justify-center w-8 h-8 rounded-md bg-primary">
-                <Package className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-base leading-none">Prime Globe</span>
-                <span className="text-xs text-muted-foreground leading-none">Freight</span>
-              </div>
+              <img src={logoImage} alt="Prime Globe Freight" className="w-12 h-12 object-contain" />
             </div>
           </Link>
 

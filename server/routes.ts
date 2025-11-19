@@ -13,7 +13,7 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  console.log("✅ Using PostgreSQL database storage");
+  console.log("✅ Using MongoDB database storage");
 
   // Auth Routes
   app.post("/api/auth/register", async (req, res) => {

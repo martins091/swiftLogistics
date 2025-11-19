@@ -67,6 +67,8 @@ export const notifications = pgTable("notifications", {
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
+}).extend({
+  id: z.string().optional(),
 });
 
 export const insertDriverSchema = createInsertSchema(drivers).omit({
@@ -74,11 +76,15 @@ export const insertDriverSchema = createInsertSchema(drivers).omit({
   createdAt: true,
   completedDeliveries: true,
   rating: true,
+}).extend({
+  id: z.string().optional(),
 });
 
 export const insertVehicleSchema = createInsertSchema(vehicles).omit({
   id: true,
   createdAt: true,
+}).extend({
+  id: z.string().optional(),
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
@@ -86,11 +92,15 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   createdAt: true,
   orderNumber: true,
   actualDeliveryTime: true,
+}).extend({
+  id: z.string().optional(),
 });
 
 export const insertNotificationSchema = createInsertSchema(notifications).omit({
   id: true,
   createdAt: true,
+}).extend({
+  id: z.string().optional(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

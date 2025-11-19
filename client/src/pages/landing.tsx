@@ -17,6 +17,7 @@ import {
   MapPin,
   TrendingUp
 } from "lucide-react";
+import heroImage from "@assets/stock_images/logistics_freight_ca_8dd1d306.jpg";
 
 export default function Landing() {
   const services = [
@@ -88,33 +89,37 @@ export default function Landing() {
       
       {/* Hero Section */}
       <section className="relative py-20 sm:py-28 lg:py-32 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat" 
+          style={{ backgroundImage: `url(${heroImage})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-4xl mx-auto text-center space-y-8">
-            <Badge variant="outline" className="px-4 py-1.5" data-testid="badge-tagline">
+            <Badge variant="outline" className="px-4 py-1.5 bg-background/20 backdrop-blur-sm border-white/30 text-white" data-testid="badge-tagline">
               <Globe className="w-3 h-3 mr-2" />
               Global Logistics Excellence
             </Badge>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight" data-testid="text-hero-title">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white" data-testid="text-hero-title">
               Your Trusted Partner in{" "}
               <span className="text-primary">Global Freight</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto" data-testid="text-hero-description">
+            <p className="text-lg sm:text-xl text-white/90 max-w-2xl mx-auto" data-testid="text-hero-description">
               At Prime Globe Freight, we redefine logistics with innovation, reliability, and customer-focused excellence. 
               Seamless freight solutions across Europe, North America, and Australia.
             </p>
             
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/contact">
-                <Button size="lg" className="w-full sm:w-auto" data-testid="button-get-quote">
+                <Button size="lg" variant="default" className="w-full sm:w-auto bg-primary border-primary-border" data-testid="button-get-quote">
                   Get a Quote
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
               <Link href="/track">
-                <Button size="lg" variant="outline" className="w-full sm:w-auto" data-testid="button-track-shipment">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto bg-background/20 backdrop-blur-sm border-white/30 text-white" data-testid="button-track-shipment">
                   Track Shipment
                 </Button>
               </Link>
