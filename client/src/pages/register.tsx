@@ -18,7 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
@@ -72,7 +78,11 @@ export default function Register() {
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-8">
           <Link href="/">
-            <img src={logoUrl} alt="Prime Globe Freight" className="h-16 w-auto" />
+            <img
+              src={logoUrl}
+              alt="Prime Globe Freight"
+              className="h-16 w-auto"
+            />
           </Link>
         </div>
 
@@ -85,7 +95,10 @@ export default function Register() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
+              >
                 <FormField
                   control={form.control}
                   name="fullName"
@@ -161,7 +174,10 @@ export default function Register() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Role</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger data-testid="select-role">
                             <SelectValue placeholder="Select a role" />
@@ -228,7 +244,11 @@ export default function Register() {
             </Form>
             <div className="mt-4 text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link href="/login" className="text-primary hover:underline" data-testid="link-login">
+              <Link
+                href="/login"
+                className="text-primary hover:underline"
+                data-testid="link-login"
+              >
                 Sign in
               </Link>
             </div>

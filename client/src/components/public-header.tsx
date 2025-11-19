@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
-import logoImage from "@assets/logologistic_1763562484250.jpg";
+import logoImage from "@assets/prime-globe-freight-logo.png";
 
 export function PublicHeader() {
   const [location] = useLocation();
@@ -30,7 +30,11 @@ export function PublicHeader() {
           {/* Logo */}
           <Link href="/" data-testid="link-home">
             <div className="flex items-center gap-2 hover-elevate active-elevate-2 rounded-md px-3 py-2 -ml-3">
-              <img src={logoImage} alt="Prime Globe Freight" className="w-12 h-12 object-contain" />
+              <img
+                src={logoImage}
+                alt="Prime Globe Freight"
+                className="w-12 h-12 object-contain"
+              />
             </div>
           </Link>
 
@@ -52,10 +56,18 @@ export function PublicHeader() {
           {/* Right Section */}
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            
+
             {user ? (
               <Button asChild data-testid="button-dashboard">
-                <Link href={user.role === "admin" ? "/dashboard" : user.role === "driver" ? "/driver-dashboard" : "/track"}>
+                <Link
+                  href={
+                    user.role === "admin"
+                      ? "/dashboard"
+                      : user.role === "driver"
+                      ? "/driver-dashboard"
+                      : "/track"
+                  }
+                >
                   Dashboard
                 </Link>
               </Button>
@@ -78,7 +90,11 @@ export function PublicHeader() {
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               data-testid="button-mobile-menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -91,7 +107,9 @@ export function PublicHeader() {
                 key={link.href}
                 asChild
                 variant="ghost"
-                className={`w-full justify-start ${isActive(link.href) ? "bg-accent" : ""}`}
+                className={`w-full justify-start ${
+                  isActive(link.href) ? "bg-accent" : ""
+                }`}
                 onClick={() => setMobileMenuOpen(false)}
                 data-testid={`button-mobile-nav-${link.label.toLowerCase()}`}
               >
@@ -100,10 +118,19 @@ export function PublicHeader() {
             ))}
             {!user && (
               <div className="flex flex-col gap-2 pt-2 sm:hidden">
-                <Button asChild variant="outline" className="w-full" data-testid="button-mobile-login">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="w-full"
+                  data-testid="button-mobile-login"
+                >
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild className="w-full" data-testid="button-mobile-signup">
+                <Button
+                  asChild
+                  className="w-full"
+                  data-testid="button-mobile-signup"
+                >
                   <Link href="/register">Sign Up</Link>
                 </Button>
               </div>
